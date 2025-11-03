@@ -14,8 +14,6 @@ export default function SurahListScreen({ navigation }) {
   const [surahs, setSurahs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  console.log(surahs[0]);
-
   useEffect(() => {
     loadSurahs();
   }, []);
@@ -32,12 +30,12 @@ export default function SurahListScreen({ navigation }) {
     }
   };
 
-  const renderSurah = ({ item }) => (
+  const renderSurah = ({ item, index }) => (
     <TouchableOpacity
       style={styles.surahCard}
       onPress={() =>
         navigation.navigate("SurahDetail", {
-          surahNumber: item.surahNumber,
+          surahNumber: index + 1,
           surahName: item.surahName,
         })
       }
