@@ -31,7 +31,7 @@ export default function SearchScreen({ navigation }) {
         (surah) =>
           surah.surahName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           surah.surahNameArabic.includes(searchQuery) ||
-          surah.surahNumber.toString() === searchQuery
+          surah.revelationPlace.toString() === searchQuery
       );
 
       setResults(filtered);
@@ -104,7 +104,7 @@ export default function SearchScreen({ navigation }) {
         <FlatList
           data={results}
           renderItem={renderResult}
-          keyExtractor={(item) => item.surahNumber.toString()}
+          keyExtractor={(item) => item.surahName.toString()}
           contentContainerStyle={styles.list}
         />
       ) : query.length > 0 ? (
