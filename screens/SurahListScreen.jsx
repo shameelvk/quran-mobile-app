@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AppHeader from "../components/AppHeader";
 
 export default function SurahListScreen({ navigation }) {
   const [surahs, setSurahs] = useState([]);
@@ -64,13 +65,7 @@ export default function SurahListScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-          <Ionicons name="search" size={24} color="#2E7D32" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Quran App</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <AppHeader />
       <FlatList
         data={surahs}
         renderItem={renderSurah}

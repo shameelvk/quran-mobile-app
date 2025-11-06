@@ -10,6 +10,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import AppHeader from "../components/AppHeader";
 
 export default function FavoritesScreen({ navigation }) {
   const [favorites, setFavorites] = useState([]);
@@ -53,13 +54,7 @@ export default function FavoritesScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-          <Ionicons name="search" size={24} color="#2E7D32" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Quran App</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <AppHeader />
       {favorites.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="heart-outline" size={64} color="#ccc" />

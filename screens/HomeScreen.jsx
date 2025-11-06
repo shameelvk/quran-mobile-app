@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import AppHeader from "../components/AppHeader";
 
 export default function HomeScreen({ navigation }) {
   const [lastRead, setLastRead] = useState(null);
@@ -47,13 +48,7 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-          <Ionicons name="search" size={24} color="#2E7D32" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Quran App</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <AppHeader />
 
       <View style={styles.greetingCard}>
         <Text style={styles.greeting}>Assalamu Alaikum</Text>
