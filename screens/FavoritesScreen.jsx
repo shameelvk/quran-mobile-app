@@ -78,7 +78,7 @@ export default function FavoritesScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#1D2233",
   },
   header: {
     flexDirection: "row",
