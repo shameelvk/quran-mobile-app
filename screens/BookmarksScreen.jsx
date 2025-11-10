@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2E7D32",
+    color: "#A44AFF",
   },
   list: {
     padding: 16,
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   },
   ayahNumber: {
     fontSize: 14,
-    color: "#2E7D32",
+    color: "#A44AFF",
     marginTop: 4,
   },
   ayahText: {

@@ -209,7 +209,7 @@ export default function SurahDetailScreen({ route, navigation }) {
 
     return (
       <View style={styles.footerLoader}>
-        <ActivityIndicator size="small" color="#2E7D32" />
+        <ActivityIndicator size="small" color="#A44AFF" />
         <Text style={styles.footerText}>
           Loading more Ayahs... ({currentBatchEnd.current}/
           {totalAyahCount.current})
@@ -234,7 +234,7 @@ export default function SurahDetailScreen({ route, navigation }) {
             <Ionicons
               name={playingAyah === item.ayahNo ? "stop" : "play"}
               size={24}
-              color="#2E7D32"
+              color="#A44AFF"
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -247,7 +247,7 @@ export default function SurahDetailScreen({ route, navigation }) {
             <Ionicons
               name={isBookmarked(item.ayahNo) ? "bookmark" : "bookmark-outline"}
               size={24}
-              color="#2E7D32"
+              color="#A44AFF"
             />
           </TouchableOpacity>
         </View>
@@ -262,7 +262,7 @@ export default function SurahDetailScreen({ route, navigation }) {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#2E7D32" />
+        <ActivityIndicator size="large" color="#A44AFF" />
         <Text style={styles.loadingText}>Loading Surah...</Text>
       </View>
     );
@@ -289,7 +289,7 @@ export default function SurahDetailScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#1D2233",
   },
   loaderContainer: {
     flex: 1,
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#2E7D32",
+    backgroundColor: "#A44AFF",
     justifyContent: "center",
     alignItems: "center",
   },

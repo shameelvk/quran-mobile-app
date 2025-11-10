@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2E7D32",
+    color: "#A44AFF",
   },
   list: {
     padding: 16,

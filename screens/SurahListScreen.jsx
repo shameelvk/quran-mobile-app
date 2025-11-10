@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AppHeader from "../components/AppHeader";
+import SurahCard from "../components/SurahCard";
 
 export default function SurahListScreen({ navigation }) {
   const [surahs, setSurahs] = useState([]);
@@ -58,7 +59,7 @@ export default function SurahListScreen({ navigation }) {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#2E7D32" />
+        <ActivityIndicator size="large" color="#A44AFF" />
       </View>
     );
   }
@@ -68,7 +69,9 @@ export default function SurahListScreen({ navigation }) {
       <AppHeader />
       <FlatList
         data={surahs}
-        renderItem={renderSurah}
+        renderItem={({ item, index }) => (
+          <SurahCard item={item} index={index} />
+        )}
         keyExtractor={(item) => item.surahName}
         contentContainerStyle={styles.list}
       />
@@ -79,7 +82,7 @@ export default function SurahListScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#1D2233",
   },
   header: {
     flexDirection: "row",
@@ -92,7 +95,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2E7D32",
+    color: "#A44AFF",
   },
   loaderContainer: {
     flex: 1,
@@ -101,46 +104,5 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 16,
-  },
-  surahCard: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    alignItems: "center",
-    elevation: 2,
-  },
-  surahNumber: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#2E7D32",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  surahNumberText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  surahInfo: {
-    flex: 1,
-  },
-  surahName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  surahNameArabic: {
-    fontSize: 18,
-    color: "#2E7D32",
-    marginTop: 2,
-  },
-  surahMeta: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 4,
   },
 });

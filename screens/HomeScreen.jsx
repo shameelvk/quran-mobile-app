@@ -11,6 +11,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import AppHeader from "../components/AppHeader";
+import { LinearGradient } from "expo-linear-gradient";
+import QuranIcon from "../assets/svg/Quran";
 
 export default function HomeScreen({ navigation }) {
   const [lastRead, setLastRead] = useState(null);
@@ -48,9 +50,11 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <AppHeader />
-
-      <View style={styles.greetingCard}>
+      <AppHeader showMenu={true} />
+      <View
+        // colors={["#DF98FA", "#9055FF"]}
+        style={styles.greetingCard}
+      >
         <Text style={styles.greeting}>Assalamu Alaikum</Text>
         <Text style={styles.subGreeting}>{greeting}</Text>
         <Text style={styles.quote}>
@@ -61,12 +65,11 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#2E7D32" style={styles.loader} />
+        <ActivityIndicator size="large" color="#A44AFF" style={styles.loader} />
       ) : (
         <>
           {lastRead && (
             <TouchableOpacity
-              style={styles.lastReadCard}
               onPress={() =>
                 navigation.navigate("SurahDetail", {
                   surahNumber: lastRead.surahNumber,
@@ -74,15 +77,25 @@ export default function HomeScreen({ navigation }) {
                 })
               }
             >
-              <View style={styles.lastReadHeader}>
-                <Ionicons name="book-outline" size={24} color="#2E7D32" />
-                <Text style={styles.lastReadTitle}>Continue Reading</Text>
-              </View>
-              <Text style={styles.lastReadSurah}>{lastRead.surahName}</Text>
-              <Text style={styles.lastReadAyah}>
-                Ayah {lastRead.ayahNumber} of {lastRead.totalAyahs}
-              </Text>
-              <View style={styles.progressBar}>
+              <LinearGradient
+                colors={["#DF98FA", "#9055FF"]}
+                style={styles.lastReadCard}
+              >
+                <View>
+                  <View style={styles.lastReadHeader}>
+                    <Ionicons name="book-outline" size={24} color="#FFFFFF" />
+                    <Text style={styles.lastReadTitle}>Last Read</Text>
+                  </View>
+                  <Text style={styles.lastReadSurah}>{lastRead.surahName}</Text>
+                  <Text style={styles.lastReadAyah}>
+                    Ayah No: {lastRead.ayahNumber} of {lastRead.totalAyahs}
+                  </Text>
+                </View>
+                <View style={{ position: "absolute", bottom: -20, right: -50 }}>
+                  <QuranIcon />
+                </View>
+
+                {/* <View style={styles.progressBar}>
                 <View
                   style={[
                     styles.progressFill,
@@ -93,7 +106,8 @@ export default function HomeScreen({ navigation }) {
                     },
                   ]}
                 />
-              </View>
+              </View> */}
+              </LinearGradient>
             </TouchableOpacity>
           )}
 
@@ -102,21 +116,21 @@ export default function HomeScreen({ navigation }) {
               style={styles.actionCard}
               onPress={() => navigation.navigate("Surahs")}
             >
-              <Ionicons name="list" size={32} color="#2E7D32" />
+              <Ionicons name="list" size={32} color="#A44AFF" />
               <Text style={styles.actionText}>All Surahs</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionCard}
               onPress={() => navigation.navigate("Bookmarks")}
             >
-              <Ionicons name="bookmark" size={32} color="#2E7D32" />
+              <Ionicons name="bookmark" size={32} color="#A44AFF" />
               <Text style={styles.actionText}>Bookmarks</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionCard}
               onPress={() => navigation.navigate("Favorites")}
             >
-              <Ionicons name="heart" size={32} color="#2E7D32" />
+              <Ionicons name="heart" size={32} color="#A44AFF" />
               <Text style={styles.actionText}>Favorites</Text>
             </TouchableOpacity>
           </View>
@@ -129,7 +143,7 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#1D2233",
   },
   header: {
     flexDirection: "row",
@@ -142,14 +156,14 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2E7D32",
+    color: "#A44AFF",
   },
   greetingCard: {
-    backgroundColor: "#2E7D32",
+    // backgroundColor: "#A44AFF",
     margin: 16,
-    padding: 20,
-    borderRadius: 12,
-    elevation: 3,
+    // padding: 20,
+    // borderRadius: 12,
+    // elevation: 3,
   },
   greeting: {
     fontSize: 28,
@@ -182,6 +196,11 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 12,
     elevation: 2,
+    flexDirection: "row",
+    gap: 20,
+    position: "relative",
+    zIndex: 100,
+    overflow: "hidden",
   },
   lastReadHeader: {
     flexDirection: "row",
@@ -191,19 +210,20 @@ const styles = StyleSheet.create({
   lastReadTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#2E7D32",
+    color: "#FFFFFF",
     marginLeft: 8,
   },
   lastReadSurah: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
+    color: "#fff",
     marginBottom: 4,
   },
   lastReadAyah: {
     fontSize: 14,
-    color: "#666",
+    color: "#FFFFFF",
     marginBottom: 12,
+    fontWeight: "regular",
   },
   progressBar: {
     height: 4,
@@ -213,7 +233,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#2E7D32",
+    backgroundColor: "#A44AFF",
   },
   quickActions: {
     flexDirection: "row",
@@ -231,7 +251,7 @@ const styles = StyleSheet.create({
   actionText: {
     marginTop: 8,
     fontSize: 12,
-    color: "#333",
+    color: "#A44AFF",
     textAlign: "center",
   },
 });

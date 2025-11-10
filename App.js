@@ -36,9 +36,13 @@ function MainTabs() {
 
             return <Ionicons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: "#2E7D32",
+          tabBarActiveTintColor: "#A44AFF",
           tabBarInactiveTintColor: "gray",
           headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: {
+            backgroundColor: "#121931",
+          },
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
@@ -70,7 +74,7 @@ export default function App() {
             component={SurahDetailScreen}
             options={{
               title: "Surah",
-              headerStyle: { backgroundColor: "#2E7D32" },
+              headerStyle: { backgroundColor: "#040C23" },
               headerTintColor: "#fff",
             }}
           />
@@ -79,7 +83,7 @@ export default function App() {
             component={SearchScreen}
             options={{
               title: "Search",
-              headerStyle: { backgroundColor: "#2E7D32" },
+              headerStyle: { backgroundColor: "#040C23" },
               headerTintColor: "#fff",
             }}
           />
