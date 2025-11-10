@@ -14,6 +14,7 @@ import FavoritesScreen from "./screens/FavoritesScreen";
 import SurahDetailScreen from "./screens/SurahDetailScreen";
 import SearchScreen from "./screens/SearchScreen";
 import SafeScreen from "./components/SafeScreen";
+import { Text } from "react-native";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -25,6 +26,7 @@ function MainTabs() {
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
+
             if (route.name === "Home")
               iconName = focused ? "home" : "home-outline";
             else if (route.name === "Surahs")
@@ -36,12 +38,19 @@ function MainTabs() {
 
             return <Ionicons name={iconName} size={size} color={color} />;
           },
+
+          tabBarLabel: ({ focused }) =>
+            focused ? (
+              <Text style={{ color: "#A44AFF", fontSize: 10 }}>
+                {route.name}
+              </Text>
+            ) : null,
           tabBarActiveTintColor: "#A44AFF",
           tabBarInactiveTintColor: "gray",
           headerShown: false,
-          tabBarShowLabel: false,
           tabBarStyle: {
             backgroundColor: "#121931",
+            borderTopColor: "#121931",
           },
         })}
       >
