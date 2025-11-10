@@ -1,5 +1,4 @@
-// screens/SearchScreen.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,62 +9,53 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import SurahCard from "../components/SurahCard";
 
 export default function SearchScreen({ navigation }) {
   const [query, setQuery] = useState("");
+  const [allSurahs, setAllSurahs] = useState([]);
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const searchSurahs = async (searchQuery) => {
-    if (!searchQuery.trim()) {
+  useEffect(() => {
+    const fetchSurahs = async () => {
+      try {
+        const response = await fetch(
+          "https://quranapi.pages.dev/api/surah.json"
+        );
+        const data = await response.json();
+        const withNumbers = data.map((surah, index) => ({
+          ...surah,
+          surahNumber: index + 1,
+        }));
+        setAllSurahs(withNumbers);
+      } catch (error) {
+        console.error("Error fetching surahs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSurahs();
+  }, []);
+
+  const handleSearch = (text) => {
+    setQuery(text);
+
+    if (!text.trim()) {
       setResults([]);
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await fetch("https://quranapi.pages.dev/api/surah.json");
-      const data = await response.json();
+    const filtered = allSurahs.filter(
+      (surah) =>
+        surah.surahName.toLowerCase().includes(text.toLowerCase()) ||
+        surah.surahNameArabic.includes(text) ||
+        surah.revelationPlace.toLowerCase().includes(text.toLowerCase()) ||
+        surah.surahNumber.toString() === text
+    );
 
-      const filtered = data.filter(
-        (surah) =>
-          surah.surahName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          surah.surahNameArabic.includes(searchQuery) ||
-          surah.revelationPlace.toString() === searchQuery
-      );
-
-      setResults(filtered);
-    } catch (error) {
-      console.error("Error searching:", error);
-    } finally {
-      setLoading(false);
-    }
+    setResults(filtered);
   };
-
-  const renderResult = ({ item }) => (
-    <TouchableOpacity
-      style={styles.resultCard}
-      onPress={() => {
-        navigation.goBack();
-        navigation.navigate("SurahDetail", {
-          surahNumber: item.surahNumber,
-          surahName: item.surahName,
-        });
-      }}
-    >
-      <View style={styles.surahNumber}>
-        <Text style={styles.surahNumberText}>{item.surahNumber}</Text>
-      </View>
-      <View style={styles.surahInfo}>
-        <Text style={styles.surahName}>{item.surahName}</Text>
-        <Text style={styles.surahNameArabic}>{item.surahNameArabic}</Text>
-        <Text style={styles.surahMeta}>
-          {item.revelationPlace} • {item.ayahCount} Ayahs
-        </Text>
-      </View>
-      <Ionicons name="chevron-forward" size={24} color="#999" />
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
@@ -80,10 +70,7 @@ export default function SearchScreen({ navigation }) {
           style={styles.searchInput}
           placeholder="Search by Surah name or number..."
           value={query}
-          onChangeText={(text) => {
-            setQuery(text);
-            searchSurahs(text);
-          }}
+          onChangeText={handleSearch}
           autoFocus
         />
         {query.length > 0 && (
@@ -99,12 +86,14 @@ export default function SearchScreen({ navigation }) {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#2E7D32" style={styles.loader} />
+        <ActivityIndicator size="large" color="#A44AFF" style={styles.loader} />
       ) : results.length > 0 ? (
         <FlatList
           data={results}
-          renderItem={renderResult}
-          keyExtractor={(item) => item.surahName.toString()}
+          renderItem={({ item, index }) => (
+            <SurahCard item={item} index={index} />
+          )}
+          keyExtractor={(item) => item.surahNumber.toString()}
           contentContainerStyle={styles.list}
         />
       ) : query.length > 0 ? (
@@ -125,17 +114,16 @@ export default function SearchScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#040C23",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
-    margin: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    elevation: 2,
+    margin: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 1,
+    borderRadius: 20,
   },
   searchIcon: {
     marginRight: 8,
@@ -164,7 +152,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#2E7D32",
+    backgroundColor: "#A44AFF",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -184,7 +172,7 @@ const styles = StyleSheet.create({
   },
   surahNameArabic: {
     fontSize: 18,
-    color: "#2E7D32",
+    color: "#A44AFF",
     marginTop: 2,
   },
   surahMeta: {
