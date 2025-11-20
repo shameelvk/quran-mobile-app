@@ -11,9 +11,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import AppHeader from "../components/AppHeader";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function BookmarksScreen({ navigation }) {
   const [bookmarks, setBookmarks] = useState([]);
+  const { theme } = useTheme();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -40,7 +42,7 @@ export default function BookmarksScreen({ navigation }) {
 
   const renderBookmark = ({ item }) => (
     <TouchableOpacity
-      style={styles.bookmarkCard}
+      style={styles(theme).bookmarkCard}
       onPress={() =>
         navigation.navigate("SurahDetail", {
           surahNumber: item.surahNumber,
@@ -48,10 +50,10 @@ export default function BookmarksScreen({ navigation }) {
         })
       }
     >
-      <View style={styles.bookmarkInfo}>
-        <Text style={styles.surahName}>{item.surahName}</Text>
-        <Text style={styles.ayahNumber}>Ayah {item.ayahNumber}</Text>
-        <Text style={styles.ayahText} numberOfLines={2}>
+      <View style={styles(theme).bookmarkInfo}>
+        <Text style={styles(theme).surahName}>{item.surahName}</Text>
+        <Text style={styles(theme).ayahNumber}>Ayah {item.ayahNumber}</Text>
+        <Text style={styles(theme).ayahText} numberOfLines={2}>
           {item.text}
         </Text>
       </View>
@@ -62,49 +64,36 @@ export default function BookmarksScreen({ navigation }) {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles(theme).container}>
       <AppHeader />
       {bookmarks.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Ionicons name="bookmark-outline" size={64} color="#ccc" />
-          <Text style={styles.emptyText}>No bookmarks yet</Text>
+        <View style={styles(theme).emptyContainer}>
+          <Ionicons name="bookmark-outline" size={64} color={theme.textLight} />
+          <Text style={styles(theme).emptyText}>No bookmarks yet</Text>
         </View>
       ) : (
         <FlatList
           data={bookmarks}
           renderItem={renderBookmark}
           keyExtractor={(item) => item.key}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={styles(theme).list}
         />
       )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1D2233",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#fff",
-    elevation: 2,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#A44AFF",
+    backgroundColor: theme.background,
   },
   list: {
     padding: 16,
   },
   bookmarkCard: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: theme.cardBackground,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -122,7 +111,7 @@ const styles = StyleSheet.create({
   },
   ayahNumber: {
     fontSize: 14,
-    color: "#A44AFF",
+    color: theme.primary,
     marginTop: 4,
   },
   ayahText: {
@@ -138,7 +127,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    color: "#999",
+    color: theme.textTertiary,
     marginTop: 16,
   },
 });

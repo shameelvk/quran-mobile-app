@@ -7,18 +7,21 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Svg, { G, Rect, Path, Defs, ClipPath } from "react-native-svg";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function SplashScreen({ navigation }) {
+  const { theme } = useTheme();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.arabicText}>
+    <View style={styles(theme).container}>
+      <Text style={styles(theme).arabicText}>
         بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ
       </Text>
-      <Text style={styles.title}>Quran App</Text>
+      <Text style={styles(theme).title}>Quran App</Text>
 
       <View style={{ justifyContent: "center", alignItems: "center" }}>
-        <Text style={styles.subTitle}>Learn Quran and</Text>
-        <Text style={styles.subTitle}>Recite once everyday</Text>
+        <Text style={styles(theme).subTitle}>Learn Quran and</Text>
+        <Text style={styles(theme).subTitle}>Recite once everyday</Text>
       </View>
 
       <View style={{ alignItems: "center" }}>
@@ -103,38 +106,37 @@ export default function SplashScreen({ navigation }) {
           onPress={() => navigation.replace("MainTabs")}
           style={{ marginTop: -40 }}
         >
-          <Text style={styles.buttonText}>Get Started</Text>
+          <Text style={styles(theme).buttonText}>Get Started</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#1D2233",
+    backgroundColor: theme.background,
     gap: 20,
   },
   arabicText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#FFF",
+    color: theme.text,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#FFF",
+    color: theme.text,
     fontFamily: "Poppins",
   },
   subTitle: {
     fontSize: 18,
-    color: "#A19CC5",
+    color: theme.iconColor,
     fontFamily: "Poppins",
   },
-  loader: {},
   buttonText: {
     paddingHorizontal: 50,
     paddingVertical: 20,

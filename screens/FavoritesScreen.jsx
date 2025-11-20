@@ -11,9 +11,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import AppHeader from "../components/AppHeader";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function FavoritesScreen({ navigation }) {
   const [favorites, setFavorites] = useState([]);
+  const { theme } = useTheme();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -34,7 +36,7 @@ export default function FavoritesScreen({ navigation }) {
 
   const renderFavorite = ({ item }) => (
     <TouchableOpacity
-      style={styles.favoriteCard}
+      style={styles(theme).favoriteCard}
       onPress={() =>
         navigation.navigate("SurahDetail", {
           surahNumber: item.surahNumber,
@@ -42,24 +44,24 @@ export default function FavoritesScreen({ navigation }) {
         })
       }
     >
-      <View style={styles.favoriteInfo}>
-        <Text style={styles.surahName}>{item.surahName}</Text>
-        <Text style={styles.surahMeta}>
+      <View style={styles(theme).favoriteInfo}>
+        <Text style={styles(theme).surahName}>{item.surahName}</Text>
+        <Text style={styles(theme).surahMeta}>
           {item.revelationPlace} • {item.ayahCount} Ayahs
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={24} color="#999" />
+      <Ionicons name="chevron-forward" size={24} color={theme.textTertiary} />
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles(theme).container}>
       <AppHeader />
       {favorites.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Ionicons name="heart-outline" size={64} color="#ccc" />
-          <Text style={styles.emptyText}>No favorites yet</Text>
-          <Text style={styles.emptySubText}>
+        <View style={styles(theme).emptyContainer}>
+          <Ionicons name="heart-outline" size={64} color={theme.textLight} />
+          <Text style={styles(theme).emptyText}>No favorites yet</Text>
+          <Text style={styles(theme).emptySubText}>
             Long press on any surah to add it to favorites
           </Text>
         </View>
@@ -68,37 +70,24 @@ export default function FavoritesScreen({ navigation }) {
           data={favorites}
           renderItem={renderFavorite}
           keyExtractor={(item) => item.surahNumber.toString()}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={styles(theme).list}
         />
       )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1D2233",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#fff",
-    elevation: 2,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#A44AFF",
+    backgroundColor: theme.background,
   },
   list: {
     padding: 16,
   },
   favoriteCard: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: theme.cardBackground,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -126,12 +115,12 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    color: "#999",
+    color: theme.textTertiary,
     marginTop: 16,
   },
   emptySubText: {
     fontSize: 14,
-    color: "#bbb",
+    color: theme.textLight,
     marginTop: 8,
     textAlign: "center",
   },
