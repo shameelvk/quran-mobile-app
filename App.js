@@ -16,13 +16,14 @@ import SurahDetailScreen from "./screens/SurahDetailScreen";
 import SearchScreen from "./screens/SearchScreen";
 import SafeScreen from "./components/SafeScreen";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { useTheme } from "./contexts/ThemeContext";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
-  const { theme } = require("./contexts/ThemeContext").useTheme();
-  
+  const { theme } = useTheme();
+
   return (
     <SafeScreen>
       <Tab.Navigator
