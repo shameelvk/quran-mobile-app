@@ -13,6 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import { fetchSurahMetadata, fetchAyah } from "../utils/api";
+import { useTheme } from "../contexts/ThemeContext";
 
 const BATCH_SIZE = 10;
 
@@ -25,6 +26,7 @@ export default function SurahDetailScreen({ route, navigation }) {
   const [bookmarks, setBookmarks] = useState([]);
   const [playingAyah, setPlayingAyah] = useState(null);
   const [sound, setSound] = useState(null);
+  const { theme } = useTheme();
 
   const totalAyahCount = useRef(0);
   const currentBatchEnd = useRef(0);
@@ -202,9 +204,9 @@ export default function SurahDetailScreen({ route, navigation }) {
     if (!loadingMore) return null;
 
     return (
-      <View style={styles.footerLoader}>
-        <ActivityIndicator size="small" color="#A44AFF" />
-        <Text style={styles.footerText}>
+      <View style={styles(theme).footerLoader}>
+        <ActivityIndicator size="small" color={theme.primary} />
+        <Text style={styles(theme).footerText}>
           Loading more Ayahs... ({currentBatchEnd.current}/
           {totalAyahCount.current})
         </Text>
@@ -213,22 +215,22 @@ export default function SurahDetailScreen({ route, navigation }) {
   };
 
   const renderAyah = ({ item }) => (
-    <View style={styles.ayahCard}>
-      <View style={styles.ayahHeader}>
-        <View style={styles.ayahNumber}>
-          <Text style={styles.ayahNumberText}>{item.ayahNo}</Text>
+    <View style={styles(theme).ayahCard}>
+      <View style={styles(theme).ayahHeader}>
+        <View style={styles(theme).ayahNumber}>
+          <Text style={styles(theme).ayahNumberText}>{item.ayahNo}</Text>
         </View>
-        <View style={styles.ayahActions}>
+        <View style={styles(theme).ayahActions}>
           <TouchableOpacity
             onPress={() =>
               playingAyah === item.ayahNo ? stopAudio() : playAudio(item)
             }
-            style={styles.actionButton}
+            style={styles(theme).actionButton}
           >
             <Ionicons
               name={playingAyah === item.ayahNo ? "stop" : "play"}
               size={24}
-              color="#A44AFF"
+              color={theme.primary}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -236,39 +238,39 @@ export default function SurahDetailScreen({ route, navigation }) {
               toggleBookmark(item);
               saveLastRead(item);
             }}
-            style={styles.actionButton}
+            style={styles(theme).actionButton}
           >
             <Ionicons
               name={isBookmarked(item.ayahNo) ? "bookmark" : "bookmark-outline"}
               size={24}
-              color="#A44AFF"
+              color={theme.primary}
             />
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.ayahText}>{item.arabic1}</Text>
+      <Text style={styles(theme).ayahText}>{item.arabic1}</Text>
       {item.english && (
-        <Text style={styles.translationText}>{item.english}</Text>
+        <Text style={styles(theme).translationText}>{item.english}</Text>
       )}
     </View>
   );
 
   if (loading) {
     return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#A44AFF" />
-        <Text style={styles.loadingText}>Loading Surah...</Text>
+      <View style={styles(theme).loaderContainer}>
+        <ActivityIndicator size="large" color={theme.primary} />
+        <Text style={styles(theme).loadingText}>Loading Surah...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles(theme).container}>
       <FlatList
         data={ayahs}
         renderItem={renderAyah}
         keyExtractor={(item) => `${item.surahNo}-${item.ayahNo}`}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={styles(theme).list}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
@@ -280,26 +282,27 @@ export default function SurahDetailScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1D2233",
+    backgroundColor: theme.background,
   },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: theme.background,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: "#666",
+    color: theme.textSecondary,
   },
   list: {
     padding: 16,
   },
   ayahCard: {
-    backgroundColor: "#fff",
+    backgroundColor: theme.cardBackground,
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
@@ -315,7 +318,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#A44AFF",
+    backgroundColor: theme.primary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -350,6 +353,8 @@ const styles = StyleSheet.create({
   footerText: {
     marginTop: 8,
     fontSize: 14,
-    color: "#666",
+    color: theme.textSecondary,
   },
 });
+
+

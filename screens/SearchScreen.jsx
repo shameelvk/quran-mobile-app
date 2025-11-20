@@ -11,12 +11,14 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import SurahCard from "../components/SurahCard";
 import { fetchSurahList } from "../utils/api";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function SearchScreen({ navigation }) {
   const [query, setQuery] = useState("");
   const [allSurahs, setAllSurahs] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchSurahs = async () => {
@@ -56,16 +58,16 @@ export default function SearchScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
+    <View style={styles(theme).container}>
+      <View style={styles(theme).searchContainer}>
         <Ionicons
           name="search"
           size={20}
           color="#999"
-          style={styles.searchIcon}
+          style={styles(theme).searchIcon}
         />
         <TextInput
-          style={styles.searchInput}
+          style={styles(theme).searchInput}
           placeholder="Search by Surah name or number..."
           value={query}
           onChangeText={handleSearch}
@@ -84,7 +86,7 @@ export default function SearchScreen({ navigation }) {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#A44AFF" style={styles.loader} />
+        <ActivityIndicator size="large" color={theme.primary} style={styles(theme).loader} />
       ) : results.length > 0 ? (
         <FlatList
           data={results}
@@ -92,32 +94,32 @@ export default function SearchScreen({ navigation }) {
             <SurahCard item={item} index={index} />
           )}
           keyExtractor={(item) => item.surahNumber.toString()}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={styles(theme).list}
         />
       ) : query.length > 0 ? (
-        <View style={styles.emptyContainer}>
-          <Ionicons name="search-outline" size={64} color="#ccc" />
-          <Text style={styles.emptyText}>No results found</Text>
+        <View style={styles(theme).emptyContainer}>
+          <Ionicons name="search-outline" size={64} color={theme.textLight} />
+          <Text style={styles(theme).emptyText}>No results found</Text>
         </View>
       ) : (
-        <View style={styles.emptyContainer}>
-          <Ionicons name="search-outline" size={64} color="#ccc" />
-          <Text style={styles.emptyText}>Search for a Surah</Text>
+        <View style={styles(theme).emptyContainer}>
+          <Ionicons name="search-outline" size={64} color={theme.textLight} />
+          <Text style={styles(theme).emptyText}>Search for a Surah</Text>
         </View>
       )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#040C23",
+    backgroundColor: theme.background,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: theme.cardBackground,
     margin: 10,
     paddingHorizontal: 10,
     paddingVertical: 1,
@@ -137,47 +139,6 @@ const styles = StyleSheet.create({
   list: {
     padding: 16,
   },
-  resultCard: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    alignItems: "center",
-    elevation: 2,
-  },
-  surahNumber: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#A44AFF",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  surahNumberText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  surahInfo: {
-    flex: 1,
-  },
-  surahName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  surahNameArabic: {
-    fontSize: 18,
-    color: "#A44AFF",
-    marginTop: 2,
-  },
-  surahMeta: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 4,
-  },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
@@ -186,7 +147,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    color: "#999",
+    color: theme.textTertiary,
     marginTop: 16,
   },
 });

@@ -4,8 +4,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Text, StatusBar } from "react-native";
 
-// Import screens
+
 import SplashScreen from "./screens/SplashScreen";
 import HomeScreen from "./screens/HomeScreen";
 import SurahListScreen from "./screens/SurahListScreen";
@@ -14,12 +15,14 @@ import FavoritesScreen from "./screens/FavoritesScreen";
 import SurahDetailScreen from "./screens/SurahDetailScreen";
 import SearchScreen from "./screens/SearchScreen";
 import SafeScreen from "./components/SafeScreen";
-import { Text } from "react-native";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
+  const { theme } = require("./contexts/ThemeContext").useTheme();
+  
   return (
     <SafeScreen>
       <Tab.Navigator
@@ -41,16 +44,16 @@ function MainTabs() {
 
           tabBarLabel: ({ focused }) =>
             focused ? (
-              <Text style={{ color: "#A44AFF", fontSize: 10 }}>
+              <Text style={{ color: theme.primary, fontSize: 10 }}>
                 {route.name}
               </Text>
             ) : null,
-          tabBarActiveTintColor: "#A44AFF",
+          tabBarActiveTintColor: theme.primary,
           tabBarInactiveTintColor: "gray",
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: "#121931",
-            borderTopColor: "#121931",
+            backgroundColor: theme.tabBarBackground,
+            borderTopColor: theme.tabBarBackground,
           },
         })}
       >
@@ -65,39 +68,42 @@ function MainTabs() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Splash">
-          <Stack.Screen
-            options={{ headerShown: false }}
-            name="Splash"
-            component={SplashScreen}
-          />
-          <Stack.Screen
-            name="MainTabs"
-            component={MainTabs}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="SurahDetail"
-            component={SurahDetailScreen}
-            options={{
-              title: "Surah",
-              headerStyle: { backgroundColor: "#040C23" },
-              headerTintColor: "#fff",
-            }}
-          />
-          <Stack.Screen
-            name="Search"
-            component={SearchScreen}
-            options={{
-              title: "Search",
-              headerStyle: { backgroundColor: "#040C23" },
-              headerTintColor: "#fff",
-            }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <StatusBar backgroundColor="transparent" />
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Splash">
+            <Stack.Screen
+              options={{ headerShown: false }}
+              name="Splash"
+              component={SplashScreen}
+            />
+            <Stack.Screen
+              name="MainTabs"
+              component={MainTabs}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="SurahDetail"
+              component={SurahDetailScreen}
+              options={{
+                title: "Surah",
+                headerStyle: { backgroundColor: "#040C23" },
+                headerTintColor: "#fff",
+              }}
+            />
+            <Stack.Screen
+              name="Search"
+              component={SearchScreen}
+              options={{
+                title: "Search",
+                headerStyle: { backgroundColor: "#040C23" },
+                headerTintColor: "#fff",
+              }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }

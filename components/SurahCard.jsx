@@ -2,14 +2,15 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { LOG } from "../utils/logHelper";
+import { useTheme } from "../contexts/ThemeContext";
 
 const SurahCard = ({ item, index }) => {
   const navigation = useNavigation();
-  LOG({ item });
+  const { theme } = useTheme();
+
   return (
     <TouchableOpacity
-      style={styles.surahCard}
+      style={styles(theme).surahCard}
       onPress={() =>
         navigation.navigate("SurahDetail", {
           surahNumber: item?.surahNumber || index + 1,
@@ -17,29 +18,29 @@ const SurahCard = ({ item, index }) => {
         })
       }
     >
-      <View style={styles.surahNumber}>
-        <Text style={styles.surahNumberText}>
+      <View style={styles(theme).surahNumber}>
+        <Text style={styles(theme).surahNumberText}>
           {item?.surahNumber || index + 1}
         </Text>
       </View>
-      <View style={styles.surahInfo}>
-        <Text style={styles.surahName}>{item.surahName}</Text>
-        <Text style={styles.surahNameArabic}>{item.surahNameArabic}</Text>
-        <Text style={styles.surahMeta}>
+      <View style={styles(theme).surahInfo}>
+        <Text style={styles(theme).surahName}>{item.surahName}</Text>
+        <Text style={styles(theme).surahNameArabic}>{item.surahNameArabic}</Text>
+        <Text style={styles(theme).surahMeta}>
           {item.revelationPlace} • {item.ayahCount} Ayahs
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={24} color="#999" />
+      <Ionicons name="chevron-forward" size={24} color={theme.textTertiary} />
     </TouchableOpacity>
   );
 };
 
 export default SurahCard;
 
-const styles = StyleSheet.create({
+const styles = (theme) => StyleSheet.create({
   surahCard: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: theme.cardBackground,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -50,7 +51,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#A44AFF",
+    backgroundColor: theme.primary,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
   },
   surahNameArabic: {
     fontSize: 18,
-    color: "#A44AFF",
+    color: theme.primary,
     marginTop: 2,
   },
   surahMeta: {
