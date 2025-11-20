@@ -12,6 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 import AppHeader from "../components/AppHeader";
 import SurahCard from "../components/SurahCard";
 
+import { fetchSurahList } from "../utils/api";
+
 export default function SurahListScreen({ navigation }) {
   const [surahs, setSurahs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,8 +24,7 @@ export default function SurahListScreen({ navigation }) {
 
   const loadSurahs = async () => {
     try {
-      const response = await fetch("https://quranapi.pages.dev/api/surah.json");
-      const data = await response.json();
+      const data = await fetchSurahList();
       setSurahs(data);
     } catch (error) {
       console.error("Error loading surahs:", error);

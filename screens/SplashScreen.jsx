@@ -4,7 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
 import Svg, { G, Rect, Path, Defs, ClipPath } from "react-native-svg";

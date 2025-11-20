@@ -12,6 +12,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
+import { fetchSurahMetadata, fetchAyah } from "../utils/api";
 
 const BATCH_SIZE = 10;
 
@@ -45,10 +46,7 @@ export default function SurahDetailScreen({ route, navigation }) {
   const loadInitialData = async () => {
     try {
       // Get total ayah count first
-      const metaResponse = await fetch(
-        `https://quranapi.pages.dev/api/${surahNumber}.json`
-      );
-      const metaData = await metaResponse.json();
+      const metaData = await fetchSurahMetadata(surahNumber);
       totalAyahCount.current = metaData.totalAyah;
       console.log("Total Ayahs:", totalAyahCount.current);
 
@@ -80,11 +78,7 @@ export default function SurahDetailScreen({ route, navigation }) {
       // Fetch batch in parallel
       const ayahPromises = [];
       for (let ayahNo = startAyah; ayahNo <= endAyah; ayahNo++) {
-        ayahPromises.push(
-          fetch(
-            `https://quranapi.pages.dev/api/${surahNumber}/${ayahNo}.json`
-          ).then((res) => res.json())
-        );
+        ayahPromises.push(fetchAyah(surahNumber, ayahNo));
       }
 
       const newAyahs = await Promise.all(ayahPromises);

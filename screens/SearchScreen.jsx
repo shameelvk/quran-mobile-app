@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import SurahCard from "../components/SurahCard";
+import { fetchSurahList } from "../utils/api";
 
 export default function SearchScreen({ navigation }) {
   const [query, setQuery] = useState("");
@@ -20,10 +21,7 @@ export default function SearchScreen({ navigation }) {
   useEffect(() => {
     const fetchSurahs = async () => {
       try {
-        const response = await fetch(
-          "https://quranapi.pages.dev/api/surah.json"
-        );
-        const data = await response.json();
+        const data = await fetchSurahList();
         const withNumbers = data.map((surah, index) => ({
           ...surah,
           surahNumber: index + 1,
