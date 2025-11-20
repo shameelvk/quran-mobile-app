@@ -1,5 +1,5 @@
 // screens/SurahDetailScreen.js
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,63 @@ import { useTheme } from "../contexts/ThemeContext";
 
 const BATCH_SIZE = 10;
 
+// Memoized AyahCard component for better performance
+const AyahCard = React.memo(({ 
+  item, 
+  theme, 
+  playingAyah, 
+  isBookmarked, 
+  onPlayPress, 
+  onBookmarkPress 
+}) => {
+  return (
+    <View style={styles(theme).ayahCard}>
+      <View style={styles(theme).ayahHeader}>
+        <View style={styles(theme).ayahNumber}>
+          <Text style={styles(theme).ayahNumberText}>{item.ayahNo}</Text>
+        </View>
+        <View style={styles(theme).ayahActions}>
+          <TouchableOpacity
+            onPress={onPlayPress}
+            style={styles(theme).actionButton}
+          >
+            <Ionicons
+              name={playingAyah === item.ayahNo ? "stop" : "play"}
+              size={24}
+              color={theme.primary}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onBookmarkPress}
+            style={styles(theme).actionButton}
+          >
+            <Ionicons
+              name={isBookmarked ? "bookmark" : "bookmark-outline"}
+              size={24}
+              color={theme.primary}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <Text style={styles(theme).ayahText}>{item.arabic1}</Text>
+      {item.english && (
+        <Text style={styles(theme).translationText}>{item.english}</Text>
+      )}
+    </View>
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison function - only re-render if these props change
+  return (
+    prevProps.item.ayahNo === nextProps.item.ayahNo &&
+    prevProps.item.arabic1 === nextProps.item.arabic1 &&
+    prevProps.item.english === nextProps.item.english &&
+    prevProps.playingAyah === nextProps.playingAyah &&
+    prevProps.isBookmarked === nextProps.isBookmarked &&
+    prevProps.theme === nextProps.theme
+  );
+});
+
+
 export default function SurahDetailScreen({ route, navigation }) {
   const { surahNumber, surahName } = route.params;
 
@@ -26,6 +83,7 @@ export default function SurahDetailScreen({ route, navigation }) {
   const [bookmarks, setBookmarks] = useState([]);
   const [playingAyah, setPlayingAyah] = useState(null);
   const [sound, setSound] = useState(null);
+  const [hasError, setHasError] = useState(false);
   const { theme } = useTheme();
 
   const totalAyahCount = useRef(0);
@@ -63,8 +121,8 @@ export default function SurahDetailScreen({ route, navigation }) {
   };
 
   const loadNextBatch = async () => {
-    // Prevent multiple simultaneous loads
-    if (loadingMore || currentBatchEnd.current >= totalAyahCount.current) {
+    // Prevent multiple simultaneous loads or retry after error
+    if (loadingMore || currentBatchEnd.current >= totalAyahCount.current || hasError) {
       return;
     }
 
@@ -88,9 +146,22 @@ export default function SurahDetailScreen({ route, navigation }) {
       // Append to existing ayahs
       setAyahs((prevAyahs) => [...prevAyahs, ...newAyahs]);
       currentBatchEnd.current = endAyah;
+      setHasError(false); // Clear error on success
     } catch (error) {
       console.error("Error loading batch:", error);
-      Alert.alert("Error", "Failed to load more Ayahs");
+      setHasError(true); // Set error state to prevent infinite retries
+      Alert.alert(
+        "Error", 
+        "Failed to load more Ayahs. Please check your connection and try again.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Error state remains true until user manually triggers retry
+            }
+          }
+        ]
+      );
     } finally {
       setLoadingMore(false);
     }
@@ -191,9 +262,11 @@ export default function SurahDetailScreen({ route, navigation }) {
 
   const handleEndReached = () => {
     // Load more when user scrolls near the end
+    // Don't auto-retry if there was a previous error
     if (
       !loading &&
       !loadingMore &&
+      !hasError &&
       currentBatchEnd.current < totalAyahCount.current
     ) {
       loadNextBatch();
@@ -201,59 +274,54 @@ export default function SurahDetailScreen({ route, navigation }) {
   };
 
   const renderFooter = () => {
-    if (!loadingMore) return null;
+    if (loadingMore) {
+      return (
+        <View style={styles(theme).footerLoader}>
+          <ActivityIndicator size="small" color={theme.primary} />
+          <Text style={styles(theme).footerText}>
+            Loading more Ayahs... ({currentBatchEnd.current}/
+            {totalAyahCount.current})
+          </Text>
+        </View>
+      );
+    }
 
-    return (
-      <View style={styles(theme).footerLoader}>
-        <ActivityIndicator size="small" color={theme.primary} />
-        <Text style={styles(theme).footerText}>
-          Loading more Ayahs... ({currentBatchEnd.current}/
-          {totalAyahCount.current})
-        </Text>
-      </View>
-    );
+    // Show retry button if there was an error and more ayahs are available
+    if (hasError && currentBatchEnd.current < totalAyahCount.current) {
+      return (
+        <View style={styles(theme).footerLoader}>
+          <TouchableOpacity
+            style={styles(theme).retryButton}
+            onPress={() => {
+              setHasError(false);
+              loadNextBatch();
+            }}
+          >
+            <Ionicons name="refresh" size={20} color="#fff" />
+            <Text style={styles(theme).retryButtonText}>Retry Loading</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return null;
   };
 
-  const renderAyah = ({ item }) => (
-    <View style={styles(theme).ayahCard}>
-      <View style={styles(theme).ayahHeader}>
-        <View style={styles(theme).ayahNumber}>
-          <Text style={styles(theme).ayahNumberText}>{item.ayahNo}</Text>
-        </View>
-        <View style={styles(theme).ayahActions}>
-          <TouchableOpacity
-            onPress={() =>
-              playingAyah === item.ayahNo ? stopAudio() : playAudio(item)
-            }
-            style={styles(theme).actionButton}
-          >
-            <Ionicons
-              name={playingAyah === item.ayahNo ? "stop" : "play"}
-              size={24}
-              color={theme.primary}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              toggleBookmark(item);
-              saveLastRead(item);
-            }}
-            style={styles(theme).actionButton}
-          >
-            <Ionicons
-              name={isBookmarked(item.ayahNo) ? "bookmark" : "bookmark-outline"}
-              size={24}
-              color={theme.primary}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-      <Text style={styles(theme).ayahText}>{item.arabic1}</Text>
-      {item.english && (
-        <Text style={styles(theme).translationText}>{item.english}</Text>
-      )}
-    </View>
-  );
+  const renderAyah = useCallback(({ item }) => (
+    <AyahCard
+      item={item}
+      theme={theme}
+      playingAyah={playingAyah}
+      isBookmarked={isBookmarked(item.ayahNo)}
+      onPlayPress={() => playingAyah === item.ayahNo ? stopAudio() : playAudio(item)}
+      onBookmarkPress={() => {
+        toggleBookmark(item);
+        saveLastRead(item);
+      }}
+    />
+  ), [playingAyah, bookmarks, theme]);
+
+  const keyExtractor = useCallback((item) => `${item.surahNo}-${item.ayahNo}`, []);
 
   if (loading) {
     return (
@@ -269,14 +337,16 @@ export default function SurahDetailScreen({ route, navigation }) {
       <FlatList
         data={ayahs}
         renderItem={renderAyah}
-        keyExtractor={(item) => `${item.surahNo}-${item.ayahNo}`}
+        keyExtractor={keyExtractor}
         contentContainerStyle={styles(theme).list}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
         removeClippedSubviews={true}
+        initialNumToRender={5}
         maxToRenderPerBatch={10}
         windowSize={10}
+        updateCellsBatchingPeriod={50}
       />
     </View>
   );
@@ -354,6 +424,20 @@ const styles = (theme) => StyleSheet.create({
     marginTop: 8,
     fontSize: 14,
     color: theme.textSecondary,
+  },
+  retryButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    gap: 8,
+  },
+  retryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 
