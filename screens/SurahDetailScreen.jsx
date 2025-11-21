@@ -12,6 +12,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleFavorite, selectIsFavorite } from "../redux/favoritesSlice";
 import { fetchSurahMetadata, fetchAyah } from "../utils/api";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -75,7 +77,7 @@ const AyahCard = React.memo(({
 
 
 export default function SurahDetailScreen({ route, navigation }) {
-  const { surahNumber, surahName } = route.params;
+  const { surahNumber, surahName, surahNameArabic, revelationPlace, ayahCount } = route.params;
 
   const [ayahs, setAyahs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +86,12 @@ export default function SurahDetailScreen({ route, navigation }) {
   const [playingAyah, setPlayingAyah] = useState(null);
   const [sound, setSound] = useState(null);
   const [hasError, setHasError] = useState(false);
+  const [surahMetadata, setSurahMetadata] = useState(null);
   const { theme } = useTheme();
+
+  // REDUX HOOKS: Connect to Redux store
+  const dispatch = useDispatch(); // Hook to dispatch actions
+  const isFavorite = useSelector(selectIsFavorite(surahNumber)); // Hook to read from store
 
   const totalAyahCount = useRef(0);
   const currentBatchEnd = useRef(0);
@@ -92,8 +99,56 @@ export default function SurahDetailScreen({ route, navigation }) {
   useEffect(() => {
     loadInitialData();
     loadBookmarks();
-    navigation.setOptions({ title: surahName });
-  }, []);
+    
+    // Configure navigation header with favorite button
+    navigation.setOptions({
+      title: surahName,
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={handleToggleFavorite}
+          style={{ marginRight: 15, opacity: canToggleFavorite() ? 1 : 0.5 }}
+        >
+          <Ionicons
+            name={isFavorite ? "heart" : "heart-outline"}
+            size={24}
+            color="#fff"
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }, [isFavorite, surahName, surahMetadata]);
+
+  useEffect(() => {
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, [sound]);
+
+  const handleToggleFavorite = () => {
+    // Use route params if available (immediate), otherwise use loaded metadata (fallback)
+    const metadata = {
+      surahNumber,
+      surahName,
+      surahNameArabic: surahNameArabic || surahMetadata?.surahNameArabic,
+      revelationPlace: revelationPlace || surahMetadata?.revelationPlace,
+      ayahCount: ayahCount || surahMetadata?.totalAyah,
+    };
+
+    // Only dispatch if we have all required data
+    if (metadata.surahNameArabic && metadata.revelationPlace && metadata.ayahCount) {
+      dispatch(toggleFavorite(metadata));
+    } else {
+      // Data not ready yet - show feedback to user
+      console.log("Waiting for surah metadata to load...");
+    }
+  };
+
+  // Check if we have enough data to enable favorite button
+  const canToggleFavorite = () => {
+    return (surahNameArabic && revelationPlace && ayahCount) || surahMetadata;
+  };
 
   useEffect(() => {
     return () => {
@@ -108,6 +163,7 @@ export default function SurahDetailScreen({ route, navigation }) {
       // Get total ayah count first
       const metaData = await fetchSurahMetadata(surahNumber);
       totalAyahCount.current = metaData.totalAyah;
+      setSurahMetadata(metaData); // Store metadata for favorites
       console.log("Total Ayahs:", totalAyahCount.current);
 
       // Load first batch
@@ -251,6 +307,8 @@ export default function SurahDetailScreen({ route, navigation }) {
       const lastReadData = {
         surahNumber,
         surahName,
+        surahNameArabic: surahNameArabic || surahMetadata?.surahNameArabic,
+        revelationPlace: revelationPlace || surahMetadata?.revelationPlace,
         ayahNumber: ayah.ayahNo,
         totalAyahs: totalAyahCount.current,
       };

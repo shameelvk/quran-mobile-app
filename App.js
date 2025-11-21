@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Text, StatusBar } from "react-native";
+import { Provider } from "react-redux";
+import store, { initializeStore } from "./redux/store";
 
 
 import SplashScreen from "./screens/SplashScreen";
@@ -68,43 +70,49 @@ function MainTabs() {
 }
 
 export default function App() {
+  useEffect(() => {
+    initializeStore();
+  }, []);
+
   return (
-    <ThemeProvider>
-      <StatusBar backgroundColor="transparent" />
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Splash">
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="Splash"
-              component={SplashScreen}
-            />
-            <Stack.Screen
-              name="MainTabs"
-              component={MainTabs}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="SurahDetail"
-              component={SurahDetailScreen}
-              options={{
-                title: "Surah",
-                headerStyle: { backgroundColor: "#040C23" },
-                headerTintColor: "#fff",
-              }}
-            />
-            <Stack.Screen
-              name="Search"
-              component={SearchScreen}
-              options={{
-                title: "Search",
-                headerStyle: { backgroundColor: "#040C23" },
-                headerTintColor: "#fff",
-              }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider>
+        <StatusBar backgroundColor="transparent" />
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="Splash">
+              <Stack.Screen
+                options={{ headerShown: false }}
+                name="Splash"
+                component={SplashScreen}
+              />
+              <Stack.Screen
+                name="MainTabs"
+                component={MainTabs}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="SurahDetail"
+                component={SurahDetailScreen}
+                options={{
+                  title: "Surah",
+                  headerStyle: { backgroundColor: "#040C23" },
+                  headerTintColor: "#fff",
+                }}
+              />
+              <Stack.Screen
+                name="Search"
+                component={SearchScreen}
+                options={{
+                  title: "Search",
+                  headerStyle: { backgroundColor: "#040C23" },
+                  headerTintColor: "#fff",
+                }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </Provider>
   );
 }
