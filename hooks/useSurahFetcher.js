@@ -1,98 +1,60 @@
-import { useState, useRef, useCallback } from "react";
-import { Alert } from "react-native";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { fetchSurahMetadata, fetchAyah } from "../utils/api";
 
 const BATCH_SIZE = 10;
 
 export function useSurahFetcher(surahNumber) {
-  const [ayahs, setAyahs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [surahMetadata, setSurahMetadata] = useState(null);
+  // 1. Fetch Metadata
+  const { data: surahMetadata, isLoading: loadingMeta } = useQuery({
+    queryKey: ["surahMetadata", surahNumber],
+    queryFn: () => fetchSurahMetadata(surahNumber),
+  });
 
-  const totalAyahCount = useRef(0);
-  const currentBatchEnd = useRef(0);
-
-  const loadNextBatch = useCallback(async () => {
-    if (loadingMore || currentBatchEnd.current >= totalAyahCount.current || hasError) {
-      return;
-    }
-
-    setLoadingMore(true);
-
-    try {
-      const startAyah = currentBatchEnd.current + 1;
-      const endAyah = Math.min(
-        currentBatchEnd.current + BATCH_SIZE,
-        totalAyahCount.current,
-      );
-
-      // Fetch batch in parallel
-      const ayahPromises = [];
-      for (let ayahNo = startAyah; ayahNo <= endAyah; ayahNo++) {
-        ayahPromises.push(fetchAyah(surahNumber, ayahNo));
-      }
-
-      const newAyahs = await Promise.all(ayahPromises);
-
-      // Append to existing ayahs
-      setAyahs((prevAyahs) => [...prevAyahs, ...newAyahs]);
-      currentBatchEnd.current = endAyah;
-      setHasError(false); // Clear error on success
-    } catch (error) {
-      console.error("Error loading batch:", error);
-      setHasError(true); // Set error state to prevent infinite retries
-      Alert.alert(
-        "Error",
-        "Failed to load more Ayahs. Please check your connection and try again.",
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              // Error state remains true until user manually triggers retry
-            },
-          },
-        ],
-      );
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [loadingMore, hasError, surahNumber]);
-
-  const loadInitialData = useCallback(async () => {
-    try {
-      setLoading(true);
-      // Get total ayah count first
-      const metaData = await fetchSurahMetadata(surahNumber);
-      totalAyahCount.current = metaData.totalAyah;
-      setSurahMetadata(metaData); // Store metadata for favorites
+  // 2. Fetch Ayahs using Infinite Query
+  const {
+    data: ayahData,
+    fetchNextPage,
+    isFetchingNextPage,
+    isLoading: loadingAyahs,
+    isError,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["ayahs", surahNumber],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!surahMetadata) return [];
       
-      // Load first batch
-      await loadNextBatch();
-    } catch (error) {
-      console.error("Error loading initial data:", error);
-      Alert.alert("Error", "Failed to load Surah data");
-    } finally {
-      setLoading(false);
-    }
-  }, [surahNumber, loadNextBatch]);
+      const startAyah = pageParam + 1;
+      const endAyah = Math.min(pageParam + BATCH_SIZE, surahMetadata.totalAyah);
+      
+      if (startAyah > endAyah) return [];
 
-  const retryLoading = useCallback(() => {
-    setHasError(false);
-    loadNextBatch();
-  }, [loadNextBatch]);
+      const promises = [];
+      for (let i = startAyah; i <= endAyah; i++) {
+        promises.push(fetchAyah(surahNumber, i));
+      }
+      return Promise.all(promises);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!surahMetadata) return undefined;
+      const totalFetched = allPages.flat().length;
+      if (totalFetched >= surahMetadata.totalAyah) return undefined;
+      return totalFetched; // Pass current length as the next pageParam
+    },
+    enabled: !!surahMetadata, // Wait until metadata is loaded
+  });
+
+  const ayahs = ayahData?.pages.flat() || [];
 
   return {
     ayahs,
-    loading,
-    loadingMore,
-    hasError,
+    loading: loadingMeta || loadingAyahs,
+    loadingMore: isFetchingNextPage,
+    hasError: isError,
     surahMetadata,
-    totalAyahCount,
-    currentBatchEnd,
-    loadInitialData,
-    loadNextBatch,
-    retryLoading,
+    totalAyahCount: { current: surahMetadata?.totalAyah || 0 },
+    currentBatchEnd: { current: ayahs.length },
+    loadInitialData: () => {}, // No-op, react-query handles automatic fetching
+    loadNextBatch: fetchNextPage,
+    retryLoading: refetch,
   };
 }

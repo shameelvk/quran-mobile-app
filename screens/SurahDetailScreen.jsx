@@ -118,7 +118,6 @@ export default function SurahDetailScreen({ route, navigation }) {
 
   // Initialize data on mount
   useEffect(() => {
-    loadInitialData();
     loadBookmarks();
   }, [surahNumber]);
 
