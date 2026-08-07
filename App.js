@@ -8,6 +8,8 @@ import { Text, StatusBar } from "react-native";
 import { Provider } from "react-redux";
 import store, { initializeStore } from "./redux/store";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import SplashScreen from "./screens/SplashScreen";
 import HomeScreen from "./screens/HomeScreen";
 import SurahListScreen from "./screens/SurahListScreen";
@@ -107,18 +109,29 @@ function RootNavigator() {
   );
 }
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+      gcTime: Infinity,
+    },
+  },
+});
+
 export default function App() {
   useEffect(() => {
     initializeStore();
   }, []);
 
   return (
-    <Provider store={store}>
-      <ThemeProvider>
-        <SafeAreaProvider>
-          <RootNavigator />
-        </SafeAreaProvider>
-      </ThemeProvider>
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <ThemeProvider>
+          <SafeAreaProvider>
+            <RootNavigator />
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </Provider>
+    </QueryClientProvider>
   );
 }

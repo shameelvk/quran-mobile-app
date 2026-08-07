@@ -11,25 +11,15 @@ import SurahCard from "../components/SurahCard";
 import { useTheme } from "../contexts/ThemeContext";
 import { fetchSurahList } from "../utils/api";
 
+import { useQuery } from '@tanstack/react-query';
+
 export default function SurahListScreen({ navigation }) {
-  const [surahs, setSurahs] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
 
-  useEffect(() => {
-    loadSurahs();
-  }, []);
-
-  const loadSurahs = async () => {
-    try {
-      const data = await fetchSurahList();
-      setSurahs(data);
-    } catch (error) {
-      console.error("Error loading surahs:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: surahs = [], isLoading: loading } = useQuery({
+    queryKey: ['surahs'],
+    queryFn: fetchSurahList,
+  });
 
   if (loading) {
     return (
