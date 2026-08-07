@@ -15,6 +15,9 @@ const SurahCard = ({ item, index }) => {
         navigation.navigate("SurahDetail", {
           surahNumber: item?.surahNumber || index + 1,
           surahName: item.surahName,
+          surahNameArabic: item.surahNameArabic,
+          revelationPlace: item.revelationPlace,
+          ayahCount: item.totalAyah,
         })
       }
     >

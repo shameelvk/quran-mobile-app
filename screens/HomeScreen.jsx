@@ -74,6 +74,9 @@ export default function HomeScreen({ navigation }) {
                 navigation.navigate("SurahDetail", {
                   surahNumber: lastRead.surahNumber,
                   surahName: lastRead.surahName,
+                  surahNameArabic: lastRead.surahNameArabic,
+                  revelationPlace: lastRead.revelationPlace,
+                  ayahCount: lastRead.totalAyahs,
                 })
               }
             >
