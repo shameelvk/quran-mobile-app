@@ -27,14 +27,7 @@ export const ThemeProvider = ({ children }) => {
     loadThemePreference();
   }, []);
 
-  useEffect(() => {
-    // Update status bar when theme changes
-    StatusBar.setBarStyle(isDarkMode ? 'light-content' : 'dark-content', true);
-    // For Android, set the background color
-    if (StatusBar.setBackgroundColor) {
-      StatusBar.setBackgroundColor(isDarkMode ? '#1D2233' : '#FFFFFF', true);
-    }
-  }, [isDarkMode]);
+
 
   const loadThemePreference = async () => {
     try {
@@ -63,6 +56,10 @@ export const ThemeProvider = ({ children }) => {
 
   return (
     <ThemeContext.Provider value={{ theme, isDarkMode, toggleTheme, isLoading }}>
+      <StatusBar 
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'} 
+        backgroundColor={theme.headerBackground} 
+      />
       {children}
     </ThemeContext.Provider>
   );
